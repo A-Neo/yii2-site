@@ -1,0 +1,15 @@
+.idea
+.env
+/vendor
+/design
+error_log
+config/bootstrap.php
+config/common.php
+config/console.php
+config/languagesDispatcher.php
+config/message.php
+config/params.php
+config/web.php
+omercans_feng532.sql
+.well-known
+.user.ini
