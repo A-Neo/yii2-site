@@ -224,11 +224,11 @@ $err = Yii::$app->session->getFlash('errmessage', false);
 <?php endif; ?>
 <div class="container travel_main_block">
     <div class="mb-5">
-        <button class="btn_travel_level <?= (isset($levels[1]) ? 'btn_travel_level_active' : '') ?> btn_travel_level_selected" data-level="1">Silver</button>
-        <button class="btn_travel_level <?= (isset($levels[2]) ? 'btn_travel_level_active' : '') ?>" data-level="2">Gold</button>
-        <button class="btn_travel_level <?= (isset($levels[3]) ? 'btn_travel_level_active' : '') ?>" data-level="3">Platinum</button>
-        <button class="btn_travel_level <?= (isset($levels[4]) ? 'btn_travel_level_active' : '') ?>" data-level="4">Diamond</button>
-        <button class="btn_travel_level <?= (isset($levels[5]) ? 'btn_travel_level_active' : '') ?>" data-level="5">President</button>
+        <button class="mb-3 btn_travel_level <?= (isset($levels[1]) ? 'btn_travel_level_active' : '') ?> btn_travel_level_selected" data-level="1">Silver</button>
+        <button class="mb-3 btn_travel_level <?= (isset($levels[2]) ? 'btn_travel_level_active' : '') ?>" data-level="2">Gold</button>
+        <button class="mb-3 btn_travel_level <?= (isset($levels[3]) ? 'btn_travel_level_active' : '') ?>" data-level="3">Platinum</button>
+        <button class="mb-3 btn_travel_level <?= (isset($levels[4]) ? 'btn_travel_level_active' : '') ?>" data-level="4">Diamond</button>
+        <button class="mb-3 btn_travel_level <?= (isset($levels[5]) ? 'btn_travel_level_active' : '') ?>" data-level="5">President</button>
     </div>
     <div class="container">
         <?php for($levelNum = 1; $levelNum <= 5; $levelNum++): ?>
@@ -246,7 +246,7 @@ $err = Yii::$app->session->getFlash('errmessage', false);
                                 <?php if ($user):  ?>
                                 <div class="emerald-head">
                                     <div class="emerald-name"><?= $user->getFullname() ?></div>
-                                    <div class="emerald-refferal"><span>Наставник</span><b>•</b><span><?= $user->getUsername() ?></span></div>
+                                    <div class="emerald-refferal"><span>Наставник</span><b>•</b><span><?= $user->getReferralname() ?></span></div>
                                 </div>
                                 <div class="emerald-body">
                                     <ul class="emerald-body__list">
@@ -273,6 +273,27 @@ $err = Yii::$app->session->getFlash('errmessage', false);
                             </div>
                         </div>
                         <?php endfor; ?>
+
+                        <?php while($user = array_shift($levelUsers)): ?>
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6" style="margin-bottom: 1.5rem;">
+                                <div class="emerald-wrapper">
+                                    <?php if ($user):  ?>
+                                        <div class="emerald-head">
+                                            <div class="emerald-name"><?= $user->getFullname() ?></div>
+                                            <div class="emerald-refferal"><span>Наставник</span><b>•</b><span><?= $user->getUsername() ?></span></div>
+                                        </div>
+                                        <div class="emerald-body">
+                                            <ul class="emerald-body__list">
+                                                <li><span>Ваш ранг</span><b><?= $user->getRang() ?></b></li>
+                                                <li><span>Партнеров</span><b><?= $user->getPartnersCount() ?></b></li>
+                                                <li><span>Участников</span><b><?= $user->getSubscribersCount() ?></b></li>
+                                            </ul>
+                                        </div>
+                                        <a href="#" class="emerald-link js-travel-open" data-uid="<?= $user->id_user ?>" data-level="<?= $levelNum ?>">Подробно</a>
+                                    <?php endif;  ?>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>
                     </div>
                 <?php else: ?>
                     <?php if ($levelNum == 1): ?>
@@ -293,8 +314,10 @@ $err = Yii::$app->session->getFlash('errmessage', false);
                 <?php endif; ?>
             </div>
         <?php endfor; ?>
+
     </div>
 </div>
+
 <script>
     // js
 

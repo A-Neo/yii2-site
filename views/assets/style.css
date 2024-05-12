@@ -3,69 +3,6 @@
    normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css 
    ========================================================================== */
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
-
-.new-cart.container {
-    border-radius: 20px;
-    background: linear-gradient(to right bottom, #323941, #061018);
-    box-shadow: 0px 56px 72px -30px rgba(50, 55, 63, 0.66);
-    padding: 30px;
-    overflow: hidden;
-
-    .card-name {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.473);
-    }
-
-    h1 {
-        margin: 0;
-        padding: 0;
-        line-height: 100%;
-    }
-
-    .card-balance {
-        color: white;
-        font-size: 22px;
-    }
-
-    .logo {
-        width: 50px;
-        position: absolute;
-        right: 30px;
-        top: 45px;
-    }
-
-    .sim {
-        width: 40px;
-        position: absolute;
-        bottom: -40px;
-        opacity: 0;
-    }
-
-    .card-number {
-        right: -200px;
-        position: absolute;
-        font-size: 16px;
-        color: rgba(255, 255, 255, 0.473);
-        bottom: 56px;
-    }
-
-    .due-date {
-        right: -100px;
-        position: absolute;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.473);
-        bottom: 30px;
-    }
-
-    .card-logo{
-        position: absolute;
-        top: -40px;
-        right: -550px;
-        height: 200px;
-        transform: rotate(-12deg);
-    }
-}
-
 html {
     font-family: sans-serif;
     -ms-text-size-adjust: 100%;
@@ -484,7 +421,7 @@ h2 {
 h3 {
     font-size: 24px;
     line-height: 30px;
-    margin-top: 20px;
+    margin-top: 20px
 }
 
 h4 {
@@ -2871,58 +2808,17 @@ h3 {
     -webkit-justify-content: flex-start;
     -ms-flex-pack: start;
     justify-content: flex-start;
-    /*background-image: url("images/6261c3008fb24c684bb9f463_Background20desktop.jpg");*/
+    background-image: url("images/6261c3008fb24c684bb9f463_Background20desktop.jpg");
     background-position: 100% 100%;
     background-size: cover;
     background-repeat: no-repeat;
-    /* Для веб-кит браузеров, таких как Chrome, Safari */
-    ::-webkit-scrollbar {
-        width: 1px;
-    }
-
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        width: 1px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: #5161ce;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
-    /* Для Firefox */
-    scrollbar-color: #5161ce #f1f1f1;
 }
 
 .wrapp_logo-menu {
-    background: #5161ce;
-    width: 350px;
-    float: left;
-    height: 100vh;
-    overflow-x: hidden;
-    position: relative;
-    padding: 10px 0 10px 10px;
-    /* Для веб-кит браузеров, таких как Chrome, Safari */
-    ::-webkit-scrollbar {
-        width: 1px;
-    }
-
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        width: 1px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: #5161ce;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
-    /* Для Firefox */
-    scrollbar-color: #5161ce #f1f1f1;
+    margin-top: 5vh;
+    margin-left: 0px;
+    padding-right: 0px;
+    padding-left: 0px;
 }
 
 .w-navbar {
@@ -3007,100 +2903,39 @@ h3 {
 }
 
 .nav_menu {
-
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    margin-top: 4vh;
+    padding-top: 15px;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    background-color: transparent;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(56%, rgba(28, 101, 172, 0.82)), to(rgba(244, 248, 252, 0.02)));
+    background-image: linear-gradient(180deg, rgba(28, 101, 172, 0.82) 56%, rgba(244, 248, 252, 0.02));
 }
 
 .link_balance {
-
+    margin-right: 2vh;
+    margin-bottom: 1.5vh;
+    margin-left: 2vh;
+    padding: 10px 0px;
+    border-radius: 10px;
+    background-color: #3530a3;
+    -webkit-transition: all 200ms ease;
+    transition: all 200ms ease;
+    color: #f4f8fc;
+    font-size: 2.5vh;
+    font-weight: 500;
+    text-align: center;
 }
 
 .link_balance:hover {
-
-}
-.accordian-class ul {
-    margin: 0;
-    padding: 0;
-}
-.accordian-class li {
-    list-style-type: none;
-}
-.accordian-class ul li a{
-    color: rgba(255,255,255,0.5);
-    text-decoration: none;
-    font-size: 16px;
-    line-height: 60px;
-    display: block;
-    font-weight: 500;
-    padding: 0 20px;
-    transition-duration:0.6s;
-    transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    position: relative;
-}
-.accordian-class>ul>li.active>a{
-    color: #5161ce;
-    background-color: transparent;
-    transition: all 0.7s;
-}
-.accordian-class a:not(:only-child):after {
-    content: "\f105";
-    position: absolute;
-    right: 20px;
-    top: 10%;
-    font-size: 14px;
-    font-family: "Font Awesome 5 Free";
-    display: inline-block;
-    padding-right: 3px;
-    vertical-align: middle;
-    font-weight: 900;
-    transition: 0.5s;
-}
-.accordian-class .active>a:not(:only-child):after {
-    transform: rotate(90deg);
-}
-.selector-active{
-    width: 100%;
-    display:inline-block;
-    position:absolute;
-    height: 37px;
-    top: 0px;
-    left: 0px;
-    transition-duration:0.6s;
-    transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    background-color: #fff;
-    border-top-left-radius: 50px;
-    border-bottom-left-radius: 50px;
-    opacity: 0;
-}
-.selector-active .top,
-.selector-active .bottom{
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    background-color: #fff;
-    right: 0;
-}
-.selector-active .top{
-    top: -25px;
-}
-.selector-active .bottom{
-    bottom: -25px;
-}
-.selector-active .top:before,
-.selector-active .bottom:before{
-    content: '';
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: #5161ce;
-}
-.selector-active .top:before{
-    left: -25px;
-    top: -25px;
-}
-.selector-active .bottom:before{
-    bottom: -25px;
-    left: -25px;
+    background-color: #001974;
 }
 
 .link_invitation {
@@ -3257,11 +3092,11 @@ justify-content: center;
     -ms-flex-align: start;
     align-items: flex-start;
     z-index: 10;
-    margin-top: 25px;
+    margin-top: 10vh;
 }
 
 .h3 {
-    color: #5161ce;
+    color: #2365aa;
     font-size: 4vh;
     line-height: 1;
     font-weight: 700;
@@ -4685,7 +4520,7 @@ justify-content: center;
     -webkit-flex: 1;
     -ms-flex: 1;
     flex: 1;
-    /*background-image: url("images/6262e295551a2bf665eaad23_bg_set-min.jpg");*/
+    background-image: url("images/6262e295551a2bf665eaad23_bg_set-min.jpg");
     background-position: 50% 50%;
     background-size: cover;
 }

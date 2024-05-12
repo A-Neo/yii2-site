@@ -19,6 +19,7 @@ class EmeraldUsers extends \yii\db\ActiveRecord
 {
     private $_username;
     private $_fullname;
+    private $_referral;
 
     /**
      * {@inheritdoc}
@@ -79,6 +80,22 @@ class EmeraldUsers extends \yii\db\ActiveRecord
             }
         }
         return $this->_username;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReferralname(): string
+    {
+        if ($this->_referral === null) {
+            $user = User::findOne(['id_ref_emerald' => $this->id_user]);
+            if ($user) {
+                $this->_referral = $user->username;
+            } else {
+                $this->_referral = 'Unnamed';
+            }
+        }
+        return $this->_referral;
     }
 
     public function getFullname()

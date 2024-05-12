@@ -39,6 +39,7 @@ where(['to_user_id' => $user->id, 'status' => Balance::STATUS_WAITING, 'comment'
 <div class="main-wrapper">
     <!-- Main Sidebar Container -->
     <aside class="main-sidebar" >
+
         <!-- Sidebar -->
         <div class="sidebar">
             <!-- Sidebar Menu -->

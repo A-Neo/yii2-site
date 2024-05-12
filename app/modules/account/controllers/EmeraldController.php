@@ -15,18 +15,36 @@ use app\models\Payout;
 use app\models\search\PayoutSearch;
 use app\models\User;
 use Yii;
+use yii\db\Exception;
 use yii\helpers\Url;
 
 use app\helpers\FunctionHelper as Help;
+use yii\helpers\VarDumper;
+use yii\web\BadRequestHttpException;
 
 class EmeraldController extends Controller
 {
 
     const PRODUCT = 1;
 
+    /**
+     * @var $user_id integer
+     */
     public $user_id;
+
+    /**
+     * @var bool $user_init
+     */
     public static $user_init = false;
+
+    /**
+     * @var bool $check_order
+     */
     public static $check_order = false;
+
+    /**
+     * @throws BadRequestHttpException
+     */
     public function beforeAction($action) {
         if (!parent::beforeAction($action)) {
             return false;
@@ -39,27 +57,29 @@ class EmeraldController extends Controller
         return true;
     }
 
-
-    /**
-     * @return int[]
-     */
-    public function actions()
+    public static function test($arr)
     {
-        $a = 5;
-        $b = 5;
-        return [$a, $b];
-        $this->actionIndex();
+        return VarDumper::dump($arr, 5, true);die;
     }
+
     public function actionIndex() {
 
+//        VarDumper::dump(16 % 4);
+//        VarDumper::dump(11 / 4);
+        VarDumper::dump(9 % 4);die;
+        (int)$a = 11 / 4;
+        $b = 4 * (int)$a;
+
+        VarDumper::dump(4 * (int)$a);
+        die;
         $user = User::findOne($this->user_id);
-        $emerlad = EmeraldMain::find()->where(['id_user' => $this->user_id])->orderBy(['level' => SORT_DESC])->indexBy('level')->all();
-        if ($emerlad) self::$user_init = true;
-        if (!self::$check_order && self::$user_init) return $this->actionCheckOrder();
+        $levels = EmeraldMain::getLevels($this->user_id);
+        if ($levels) self::$user_init = true;
+        //if (!self::$check_order && self::$user_init) return $this->actionCheckOrder();
 
         return $this->render('index',
             [
-                'levels'   => $emerlad,
+                'levels'   => $levels,
                 'username' => Yii::$app->user->identity->username,
                 'user' => $this->user,
                 'userid' => $this->user_id,
@@ -68,6 +88,9 @@ class EmeraldController extends Controller
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public function actionInit() {
 
         if (Yii::$app->request->isPost) {
@@ -77,7 +100,7 @@ class EmeraldController extends Controller
 
         $user = User::getCurrent();
 
-        $result = EmeraldMain::initUser($this->user_id, $ref_user);
+        $result = isset($ref_user) ? EmeraldMain::initUser($this->user_id, $ref_user) : false;
 
         if ($result === true) {
             Yii::$app->session->setFlash('okmessage', 'Уровень активирован');
@@ -112,6 +135,7 @@ class EmeraldController extends Controller
     }
 
     public function actionCheckOrder() {
+        return $this->actionIndex();
         $userId = $this->user_id; // ID текущего пользователя
 
         // Проверяем, существует ли уже заказ для этого пользователя

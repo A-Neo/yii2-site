@@ -5,6 +5,7 @@ namespace app\components\emerald;
 use app\models\PassiveIncome;
 use app\models\TravelDelay;
 use app\models\TravelUsers;
+use Yii;
 use yii\db\ActiveRecord;
 
 use app\components\RecordCopier;
@@ -18,23 +19,6 @@ use app\models\EmeraldDelay;
 trait BaseTrait
 {
     /**
-     * Получаем всех юзеров на столе
-     *
-     * @return EmeraldUsers[]|array|ActiveRecord[]
-     */
-    public function getUsers($id_table)
-    {
-        return EmeraldUsers::find()->where(['id_table' => $id_table])->all();
-    }
-
-    public function getUsersList()
-    {
-        return EmeraldUsers::find()
-            ->where(['id_table' => $this->id])
-            ->all();
-    }
-
-    /**
      * Получаем рефералов юзера
      *
      * @return EmeraldUsers[]|array|ActiveRecord[]
@@ -42,55 +26,11 @@ trait BaseTrait
     public function getRefUsers($id_ref)
     {
         return EmeraldUsers::find()->where(['id_table' => $this->id])->all();
-//        return EmeraldUsers::find()->where(['id_ref' => $id_ref])->all();
-    }
-
-    public static function getUsersCount($id_table)
-    {
-        return EmeraldUsers::find()->where(['id_table' => $id_table])->count();
-        //return $users->count();
-    }
-
-    /**
-     * Получаем уровни юзера
-     *
-     * @return EmeraldMain[]|array|ActiveRecord[]
-     */
-    public static function getLevels()
-    {
-        return EmeraldMain::find()->where(['id_user' => self::$user->id])->orderBy(['level' => SORT_ASC])->indexBy('level')->all();
     }
 
     public static function getLevelsId($id)
     {
         return EmeraldMain::find()->where(['id_user' =>$id])->orderBy(['level' => SORT_ASC])->indexBy('level')->all();
-    }
-
-    public static function getLastLevels()
-    {
-        return EmeraldMain::find()->where(['id_user' => self::$user->id])->orderBy(['id' => SORT_DESC])->limit(1)->one();
-    }
-
-    /**
-     * Проверяем активнен ли юзер
-     *
-     * @param $userId
-     * @return bool
-     */
-    public static function checkIsActive($id_user)
-    {
-        return (int)EmeraldMain::find()->where(['id_user' => $id_user])->count() > 0;
-    }
-
-    /**
-     * Увеличиваем уровень юзера
-     *
-     * @param $model
-     * @return void
-     */
-    public static function addLevel($model)
-    {
-        RecordCopier::copyWithAttributes($model, ['level' => $model->level + 1]);
     }
 
     public static function checkIsBalance()
@@ -115,34 +55,53 @@ trait BaseTrait
         return $balance->save();
     }
 
-    public static function setLevel($level = 1)
+    public static function setLevel($referer, $level = 1)
     {
         $up_level = $level + 1;
-        if ($up_level < self::MAX_LEVEL) {
-            $up_table = EmeraldMain::findOne(['id_user' => self::$reffer->id, 'level' => $up_level]);
+        if ($up_level <= self::MAX_LEVEL) {
+            /*
+             * Проверяем есть ли у рефера стол, который подходит под мой уровень (формальная проверка) его быть и не должно!
+             * Если ты не user с id = 1
+             */
+            $up_table = EmeraldMain::findOne(['id_user' => $referer->id, 'level' => $up_level]);
             if (!$up_table) {
-                //Не нашли стола - открываем
+                // Создаем новый стол для реферала
                 $table = new EmeraldMain();
-                $table->id_user = self::$reffer->id;
+                $table->id_user = $referer->id;
                 $table->level = $up_level;
                 if (!$table->save()) return;
 
-
-                //Проверяем, можно ли стать на стол к своему рефу
-                $table_ref = self::findOne(['id_user' => self::$reffer->id_ref_emerald, 'level' => $up_level]);
+                /*
+                 * Проверяем, можно ли стать на стол к своему рефералу
+                 * Если можно - добавляем к столу
+                 * В ином случае - откладываем на 24 часа
+                 */
+                $table_ref = self::findOne(['id_user' => $referer->id_ref_emerald, 'level' => $up_level]);
 
                 if ($table_ref) {
-                    //Стол доступен - становимся на него и рекурсивно вызываем этот же метод уже для реферера
+                    /*
+                     * Стол доступен - добавляем
+                     * Рекурсивно вызываем этот метод для его реферала
+                     */
                     $model_user = new EmeraldUsers();
                     $model_user->id_table = $table_ref->id;
-                    $model_user->id_ref = self::$reffer->id_ref_emerald;
-                    $model_user->id_user = self::$reffer->id;
-                    if ($model_user->save()) self::updateReferer(self::$reffer->id_ref_emerald, $up_level, self::$reffer->id);
+                    $model_user->id_ref = $referer->id_ref_emerald;
+                    $model_user->id_user = $referer->id;
+                    if ($model_user->save()) {
+                        self::$user = User::findOne(['id' => $referer->id]);
+                        self::$reffer = User::findOne(['id' => self::$user->id_ref_emerald]);
+                        self::$_this = EmeraldMain::findOne(['id_user' => self::$reffer->id, 'level' => $up_level]);
+                        self::updateReferer($up_level);
+                    }
                 } else {
-                    //Стол недоступен - откладываем запись "на потом"
+                    /*
+                     * Стол заполнен - у реферала нет места
+                     * Откладываем на 24 часа
+                     * После ищем подходящего реферала
+                     */
                     $delay = new EmeraldDelay();
-                    $delay->id_user = self::$reffer->id;
-                    $delay->id_ref = self::$reffer->id_ref_emerald;
+                    $delay->id_user = $referer->id;
+                    $delay->id_ref = $referer->id_ref_emerald;
                     $delay->level = $up_level;
                     $delay->date_end = time() + 172800;
                     $delay->save();
@@ -151,117 +110,138 @@ trait BaseTrait
         }
     }
 
+    /*
+     *
+     * @var EmeraldMain self::$_this
+     * User self::$reffer, Int $level
+     *
+     */
     public static function updateReferer($level = 1)
     {
+        //Получаем количество юзеров на столе рефера с уровенем $level
+        $count_user_table = (int)EmeraldUsers::find()->where(['id_ref' => self::$reffer->id ,'id_table' => self::$_this->id])->count();
+        $count = $count_user_table % 4;
 
-        $model_main = EmeraldMain::findOne(['id_user' => self::$reffer->id, 'level' => $level]);
-        if (!$model_main) return;
-
-        //Получаем количество ставших на стол
-        $count_user_table = (int)EmeraldUsers::find()->where(['id_ref' => self::$reffer->id ,'id_table' => $model_main->id])->count();
-        if ($count_user_table < 1) return;
-
-        //Для 1, 2 и 3 участника просто снимаем деньги и кидаем на накопление и на баланс
-        // для остальных - скидываем деньги на вывод и на баланс ST, а так же чекаем левелап
-
-        $balance = (double) self::PLAN_LIST[$level]['payment'];
-
-        self::$reffer->balance += (double) self::PLAN_LIST[$level]['payment'];
-        self::$reffer->updateAttributes(['balance']);
-
-        self::makeBalanceRecord(Balance::TYPE_EMERALD, $level,
-            self::$user->id, self::$reffer->id, 0, (double) self::PLAN_LIST[$level]['payment'], 'Пополнение от реферала');
-
-        // add passive balance function
-
-        if ($count_user_table == 4) {
-            self::setLevel($level);
-            // add passive balance function
+        /*
+         * Если на столе нет мест - ошибка
+         */
+        if ($count_user_table < 1) return true;
+        if ($level < 3) {
+            self::addRefererBalance(self::$user, self::$reffer, $level);
+            if ($count_user_table == 4) {
+                return self::setLevel(self::$reffer, $level);
+            }
+            return true;
         }
 
-        if ($level > 2) {
-            self::addPassiveBalance($level);
+        if ($level == 3) {
+            self::addRefererBalance(self::$user, self::$reffer, $level);
+            if ($count_user_table >= 4) {
+                self::setPassiveIncome(self::$user, self::$reffer, $level, $count_user_table);
+            }
+            if ($count_user_table == 4) {
+                return self::setLevel(self::$reffer, $level);
+            }
+            if ($count == 0) {
+                /*
+                 * На уровне 3 за заполнение стола + 10 месяцев пассивного дохода
+                 */
+                self::setPassiveIncome(self::$user, self::$reffer, $level, 5);
+
+            }
+
+            return true;
+        }
+        if ($level == 5) {
+            $message = 'Заполнен стол | Президент | Пользователь: ' . self::$reffer->username;
+            self::addRefererBalance(self::$user, self::$reffer, $level);
+            if ($count == 0) {
+                self::setPassiveIncome(self::$user, self::$reffer, $level, 4);
+                self::sender($message);
+                return true;
+            }
+            self::setPassiveIncome(self::$user, self::$reffer, $level, $count);
+            return true;
+        }
+
+        if ($level == 4) {
+            $message = 'Заполнен стол | DIAMOND | Пользователь: ' . self::$reffer->username;
+            self::addRefererBalance(self::$user, self::$reffer, $level);
+            if ($count == 0) {
+                self::setPassiveIncome(self::$user, self::$reffer, $level, 4);
+                self::sender($message);
+                return self::setLevel(self::$reffer, $level);
+            }
+            self::setPassiveIncome(self::$user, self::$reffer, $level, $count);
+            return true;
         }
 
         return true;
     }
 
-    public static function addPassiveBalance($level)
+
+    /**
+     * @param $user
+     * @return bool
+     */
+    public static function sender($message)
     {
-        $plan = self::PLAN_LIST[$level];
-
-        $passive = PassiveIncome::find()->where(['user_id' => self::$reffer->id, 'level' => $level])->orderBy(['level' => SORT_DESC])->indexBy('level')->one();
-
-        if ($passive) {
-            if ($passive->slot_active > 3) {
-                self::updatePassiveBalance($passive, $plan, $level, true, 5);
-            } else {
-                self::updatePassiveBalance($passive, $plan, $level);
-            }
-        } else {
-            self::createPassiveBalance(new PassiveIncome(), $plan, $level);
-        }
+        return Yii::$app->mailer->compose()
+            ->setTo('noreply@sapphire-gr.com')
+            ->setFrom(['noreply@sapphire-gr.com' => 'sapphire-gr.com'])
+            ->setSubject('Уровень: Президент')
+            ->setTextBody($message)
+            ->send();
     }
 
-    public static function createPassiveBalance($passive, $plan, $level)
+    /**
+     *
+     * Пассивный доход
+     *
+     * @param $user
+     * @param $referer
+     * @param $level
+     * @param $count
+     * @return PassiveIncome
+     */
+    public static function setPassiveIncome($user, $referer, $level, $count)
     {
-        $months = $plan['slot'][1]['month'];
+        $plan = self::PLAN_LIST[$level];
+        $months = $plan['slot'][$count]['month'];
 
-        $passive->user_id = self::$reffer->id;
+        $passive = new PassiveIncome();
+        $passive->user_id = $referer->id;
         $passive->amount = $plan['passive'];
-        $passive->months = $months;
+        $passive->months = $plan['slot'][$level]['month'];
         $passive->level = $level;
-        $passive->slot_active = 1;
+        $passive->slot_active = $count;
+        $passive->payments_done = 0;
         $passive->activation_date = date('Y-m-d'); // Текущая дата
         $passive->end_date = date('Y-m-d', strtotime("+$months months")); // Дата окончания
         $passive->next_payment_date = date('Y-m-d', strtotime('+1 month')); // Следующий платеж
 
         if (!$passive->save()) {
-            return 'Не удалось добавить пассивный доход к пользователю [ERR0011]';
+            return 'Не удалось сохранить пассивный доход пользователя [ERR0011]';
         }
 
-        return true;
+        return $passive;
+
     }
 
-    public static function updatePassiveBalance($passive, $plan, $level, $complete = false, $sloting = 0)
+    /**
+     * Разовая выплата
+     *
+     * @param $user
+     * @param $reffer
+     * @param int $level
+     * @return void
+     */
+    public static function addRefererBalance($user, $referer, $level = 1)
     {
-        if ($complete == false) {
-            $slot = ($sloting == 5) ? $sloting : $passive->slot_active + 1;
-            $months = $plan['slot'][$slot]['month'];
-            $end_date = $passive->end_date;
-            $passive->slot_active = $slot;
-            $passive->months += $months;
-
-            if ($passive->end_date <= date('Y-m-d')) {
-                $passive->end_date = date('Y-m-d', strtotime("+$months months"));
-                $passive->next_payment_date = date('Y-m-d', strtotime('+1 month')); // Следующий платеж
-            } else {
-                $passive->end_date = date('Y-m-d', strtotime($end_date . " +$months months"));
-            }
-
-            if (!$passive->save()) {
-                return 'Не удалось обновить пассивный доход к пользователю [ERR0011]';
-            }
-
-            if ($passive->slot_active == 4) self::updatePassiveBalance($passive, $plan, $level, true, 5);
-
-        } else {
-            if ($level == 3) self::updatePassiveBalance($passive, $plan, $level, false, 5);
-
-            $passive->slot_active = 5;
-            $passive->tour_id = ($level == 4) ? $plan['slot'][5]['tour'] : 0;
-            $passive->phone = ($level == 5) ? 1 : 0;
-        }
-
-        $passive->complete = 1;
-
-        if (!$passive->save()) {
-            return 'Не удалось обновить пассивный доход к пользователю [ERR0011]';
-        }
-
-        return true;
+        $plan = self::PLAN_LIST[$level];
+        $referer->balance += $plan['payment'];
+        $referer->updateAttributes(['balance']);
+        self::makeBalanceRecord(Balance::TYPE_EMERALD, $level, $user->id, $referer->id, 0, (double) $plan['payment'], 'Пополнение от реферала');
     }
 
 }
-
-

@@ -37,7 +37,8 @@ where(['to_user_id' => $user->id, 'status' => Balance::STATUS_WAITING, 'comment'
 <body>
 <?php $this->beginBody() ?>
 <div class="main-wrapper">
-    <header class="main-header"></header>
+    <header class="main-header">
+</header>
 </div>
 <main class="main">
     <aside class="main-sidebar main-sidebar-desktop" >

@@ -10,6 +10,7 @@ config/languagesDispatcher.php
 config/message.php
 config/params.php
 config/web.php
+view+css.zip
 omercans_feng532.sql
 .well-known
 .user.ini

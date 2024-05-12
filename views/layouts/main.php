@@ -13,6 +13,8 @@ AppAsset::register($this);
     <!DOCTYPE html>
     <html lang="<?=Yii::$app->language?>">
     <head>
+	
+		<!-- Chatra {literal} -->
 <script>
     (function(d, w, c) {
         w.ChatraID = 'dJQc5iTrDpnb9nWmD';
@@ -25,6 +27,7 @@ AppAsset::register($this);
         if (d.head) d.head.appendChild(s);
     })(document, window, 'Chatra');
 </script>
+<!-- /Chatra {/literal} -->
         <meta charset="<?=Yii::$app->charset?>">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title><?=Html::encode($this->title)?></title>
@@ -64,6 +67,8 @@ AppAsset::register($this);
         </div>
     </div>
     <?php $this->endBody() ?>
+	
+	
     </body>
     </html>
 <?php $this->endPage();

@@ -4,7 +4,6 @@
 
 /* @var $content string */
 
-use rmrevin\yii\fontawesome\FAS;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\assets\AppAsset;
@@ -50,6 +49,8 @@ JS
     <?php $this->registerCsrfMetaTags() ?>
     <?php $this->head() ?>
 </head>
+
+<!-- Chatra {literal} -->
 <script>
     (function(d, w, c) {
         w.ChatraID = 'dJQc5iTrDpnb9nWmD';
@@ -62,9 +63,14 @@ JS
         if (d.head) d.head.appendChild(s);
     })(document, window, 'Chatra');
 </script>
+<!-- /Chatra {/literal} -->
+
 <body class="body-2">
 <?php $this->beginBody() ?>
 <div class="section_desctop wf-section <?=Yii::$app->controller->id == 'tour' ? 'istanbul' : ''?>">
+    <!--
+    <div class="line_top"></div>
+    -->
     <div class="wrapp_logo-menu">
         <div data-animation="over-left" data-collapse="small" data-duration="400" data-easing="ease" data-easing2="ease" role="banner" class="w-navbar w-nav">
             <div class="container w-container" id="w-nav-container">
@@ -73,16 +79,29 @@ JS
                         <a href="/" class="brand-2 w-nav-brand d-none">
                             <img loading="lazy" src="<?=AppAsset::image('626178820fa83d20781dc9bb_logo-out.png');?>" alt class="image-2">
                         </a>
+                        <div class="time_tl">
+                          <!--  <div class="chat_support"><?=Yii::t('account', 'Support')?></div>
+                           <div class="wrapp_time-tl">
+                                <div class="time_support">
+                                    <?=Yii::t('account', 'From {from} till {till}', ['from' => Yii::$app->settings->get('support', 'from', '9:00'), 'till' => Yii::$app->settings->get('support', 'till', '21:00')])?>
+                                </div>
+                                <a href="<?=Yii::$app->settings->get('social', 'telegramBot', '#')?>" target="_blank"><img loading="lazy" src="<?=AppAsset::image('6261ca0b0642e74866ddcaeb_telegram20(3).png');?>" alt class="icon_tl"></a>
+                            </div> -->
+                        </div>
                     </div>
                     <div class="div-block-9">
                         <div class="wrapp_top-btn _2">
                             <div class="div-block-7">
                                 <?php if($hasPoints): ?>
-                                    <a href="#" class="new-cart" title="<?=Yii::t('account', 'Sapphire points waiting for request')?>"><p class="card-name"><?=Yii::t('account', 'Request')?></p></a>
+                                    <a href="#" class="btn_balance w-button" data-toggle="modal" data-target="#sapphire-modal" title="<?=Yii::t('account', 'Sapphire points waiting for request')?>"><?=Yii::t('account', 'Request')?></a>
                                 <?php endif ?>
-                                <a href="/pm/balance" class="new-cart"><?=Yii::t('account', 'Balance')?> <span class="span"><?=number_format($user->balance - $user->accumulation, 2)?></span> $</a>
-                                <a href="/pm/balance" class="new-cart"><?=Yii::t('account', 'Balance ST')?> <span class="span"><?= number_format($user->balance_travel, 2)?></span> $</a>
+                                <a href="/pm/balance" class="btn_balance w-button"><?=Yii::t('account', 'Balance')?> <span class="span"><?=number_format($user->balance - $user->accumulation, 2)?></span> $</a>
+                                <a href="/pm/balance" class="btn_balance w-button"><?=Yii::t('account', 'Balance ST')?> <span class="span"><?= number_format($user->balance_travel, 2)?></span> $</a>
+                                <!--
+                                <a href="/pm/profile" class="btn_profil w-button"><?=Yii::t('account', 'Profile')?></a>
+                                -->
                             </div>
+                            <?='';//$this->render('//layouts/language')?>
                         </div>
                         <div class="menu-button w-nav-button">
                             <div class="icon w-icon-nav-menu"></div>
@@ -97,6 +116,22 @@ JS
         <h4 class="h3"><?=$this->title?></h4>
         <?=Alert::widget()?>
         <?=$content?>
+    </div>
+    <div class="wrapp_top-btn">
+        <div class="div-block-7">
+            <?php if($hasPoints): ?>
+                <a href="#" class="btn_balance w-button" data-toggle="modal" data-target="#sapphire-modal" title="<?=Yii::t('account', 'Sapphire points waiting for request')?>"><?=Yii::t('account', 'Request')?></a>
+            <?php endif ?>
+            <a href="/pm/balance" class="btn_balance w-button mb-1"><?=Yii::t('account', 'Balance')?> <span class="span"><?=number_format($user->balance - $user->accumulation, 2)?></span> $</a>
+            <a href="/pm/balance" class="btn_balance w-button mb-1"><?=Yii::t('account', 'Balance ST')?> <span class="span"><?= number_format($user->balance_travel, 2)?></span> $</a>
+            <!--
+            <a href="/pm/profile" class="btn_profil w-button"><?=Yii::t('account', 'Profile')?></a>
+            -->
+            <?php if(Yii::$app->session->has('back-to-admin')): ?>
+                <a href="/pm/default/back" class="btn_balance w-button"><?=Yii::t('account', 'Back to Admin')?></a>
+            <?php endif ?>
+        </div>
+        <?='';//$this->render('//layouts/language')?>
     </div>
     <?= $this->render('sapphire-modal');?>
     <?= $this->render('travel-modal');?>

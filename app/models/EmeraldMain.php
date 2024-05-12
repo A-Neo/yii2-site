@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\db\Exception;
 use yii\db\Expression;
 
 use app\components\emerald\BaseTrait;
@@ -39,6 +40,11 @@ class EmeraldMain extends \yii\db\ActiveRecord
 
     public static $user;
     public static $reffer;
+
+    /**
+     * @var $_this
+     */
+    public static $_this;
 
     const RANG = [
         0 => 'None',
@@ -141,11 +147,53 @@ class EmeraldMain extends \yii\db\ActiveRecord
         ];
     }
 
-    public static function initUser($id_user, $id_referal)
+    /**
+     * Получаем всех юзеров на столе
+     *
+     * public function getUsersList()
+     *
+     * @return EmeraldUsers[]|array|ActiveRecord[]
+     */
+    public function getUsers($id_table = 0)
+    {
+        return EmeraldUsers::find()
+            ->where(['id_table' => $this->id])
+            ->all();
+    }
+
+    /**
+     * Получаем уровни юзера
+     *
+     * @return EmeraldMain[]|array|ActiveRecord[]
+     */
+    public static function getLevels($user_id = 0)
+    {
+        if ($user_id == 0) $user_id = self::$user->id;
+        return EmeraldMain::find()->where(['id_user' => $user_id])->orderBy(['level' => SORT_ASC])->indexBy('level')->all();
+    }
+
+    /**
+     * Проверяем активнен ли юзер
+     *
+     * @param $userId
+     * @return bool
+     */
+    public static function checkIsActive($id_user)
+    {
+        return (int)self::find()->where(['id_user' => $id_user])->count() > 0;
+    }
+
+    /**
+     * @param $id_user
+     * @param $referral
+     * @return string|true
+     * @throws Exception
+     */
+    public static function initUser($id_user, $referral, $level = 1)
     {
         // Start New
         self::$user     = User::findOne(['id' => $id_user]);
-        self::$reffer   = $id_referal;
+        self::$reffer   = $referral;
 
         if (!self::$user) return 'Пользователь не найден';
         if (!self::$reffer) return 'Пользователь по реф id не найден';
@@ -164,7 +212,7 @@ class EmeraldMain extends \yii\db\ActiveRecord
         $this_model = new self();
         $this_model->id_user = self::$user->id;
         $this_model->status = self::STATUS_ACTIVE;
-        $this_model->level = 1;
+        $this_model->level = $level; // Всегда первый уровень, потому что активация
 
         if (!$this_model->save()) {
             $transaction->rollBack();
@@ -178,29 +226,32 @@ class EmeraldMain extends \yii\db\ActiveRecord
 
         self::makeBalanceRecord(Balance::TYPE_E_ACTIVE, 1, self::$user->id, 0, (double) self::CONTRIBUTION, 0, 'Активация пользователя');
 
+        /**
+         * Ищем стол 1 уровня у реферала
+         */
+        self::$_this = self::findOne(['id_user' => self::$reffer->id, 'level' => 1]);
+        if (!empty(self::$_this)) return 'Ошибка: у реферала не найден стол первого уровня [EmeraldMain::ERR001]';
 
-        $model_em = self::find()->where(['id_user' => self::$reffer->id])->orderBy(['level' => SORT_DESC])->one();
-        $table = $model_em->id;
 
-
-        //Добавляем юзера к рефереру
+        /**
+         * Добавляем юзера к рефералу
+         */
         $model_user             = new EmeraldUsers();
         $model_user->id_ref     = self::$reffer->id;
         $model_user->id_user    = self::$user->id;
-        $model_user->id_table   = $table;
+        $model_user->id_table   = self::$_this->id;
 
         if (!$model_user->save()) {
             $transaction->rollBack();
             return 'Не удалось добавить пользователя к реферу EmeraldUsers [ERR0010]';
         }
 
-        if (!self::updateReferer($model_em->level)) {
+        if (!self::updateReferer()) {
             $transaction->rollBack();
             return 'Не удалось обновить реферала EmeraldMain [ERR001]';
         }
 
         $transaction->commit();
-
 
         return true;
     }

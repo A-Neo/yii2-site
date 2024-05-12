@@ -16,7 +16,6 @@ $this->title = Yii::t('account', 'Balance');
  * @var $user \app\models\User
  */
 $user = Yii::$app->user->identity;
-$hasPoints = false;
 ?>
 <?php /*if(!$user->isActive()): ?>
     <div class="card">
@@ -31,7 +30,22 @@ $hasPoints = false;
 </div>
 <?php /*endif */?>
 <div class="row w-100">
-    <?=$this->render('/tabs', ['hasPoints' => $hasPoints, 'user' => $user]);?>
+    <div class="col-xs-12 col-sm-6 col-xl-3 p-3">
+        <div class="inform_tour w-inline-block w-100">
+            <div class="balance"><?=Yii::t('account', 'Balance')?></div>
+            <div class="balance_amount">
+                <span class="span text-nowrap"><?=number_format($user->balance - $user->accumulation, 2, '.', '')?> <?=FAS::icon('dollar-sign')?></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-xl-3 p-3">
+        <div class="inform_tour w-inline-block w-100">
+            <div class="balance"><?=Yii::t('account', 'Balance ST')?></div>
+            <div class="balance_amount">
+                <span class="span text-nowrap"><?=number_format($user->balance_travel, 2, '.', '')?> <?=FAS::icon('dollar-sign')?></span>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="w-100 wrapper_form-balance">
     <?php Pjax::begin(); ?>
