@@ -18504,19 +18504,19 @@ Webflow.define('links', module.exports = function ($, _) {
   }
 
   function setClass($elem, className, add) {
-    var exists = $elem.hasClass(className);
+    // var children = $elem.hasClass(className);
+    // if (add && exists) return;
+    // if (!add && !exists) return;
+    // add ? $elem.addClass(className) : $elem.removeClass(className);
+    var $parentLi = $elem.closest('li');
+    var exists = $parentLi.hasClass(className);
 
-    if (add && exists) {
-      return;
-    }
+    if (add && exists) return;
+    if (!add && !exists) return;
+    className = 'active';
 
-    if (!add && !exists) {
-      return;
-    }
-
-    add ? $elem.addClass(className) : $elem.removeClass(className);
+    add ? $parentLi.addClass(className) : $parentLi.removeClass(className);
   } // Export module
-
 
   return api;
 });

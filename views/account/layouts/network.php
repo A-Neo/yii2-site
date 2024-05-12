@@ -58,7 +58,7 @@ JS
             </div>
             <a href="#" class="main"><?=Yii::t('account', 'Main')?></a></div>
         <div class="block_btn-exit">
-            <?=$this->render('/tabs', ['hasPoints' => $hasPoints, 'user' => $user]);?>
+<!--            --><?php //=$this->render('/tabs', ['hasPoints' => $hasPoints, 'user' => $user]);?>
         </div>
     </div>
     <?=$this->render('sapphire-modal');?>

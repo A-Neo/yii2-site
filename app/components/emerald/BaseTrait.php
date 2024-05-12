@@ -17,7 +17,6 @@ use app\models\EmeraldDelay;
 
 trait BaseTrait
 {
-
     /**
      * Получаем всех юзеров на столе
      *
