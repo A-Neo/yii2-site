@@ -25,7 +25,6 @@ class TravelDelay extends \yii\db\ActiveRecord
     {
         return 'travel_delay';
     }
-
     /**
      * {@inheritdoc}
      */
@@ -35,7 +34,6 @@ class TravelDelay extends \yii\db\ActiveRecord
             [['id_ref', 'id_user', 'level', 'date_end'], 'integer'],
         ];
     }
-
     /**
      * {@inheritdoc}
      */
@@ -49,7 +47,6 @@ class TravelDelay extends \yii\db\ActiveRecord
             'date_end' => 'Date End',
         ];
     }
-
     public function getUser()
     {
         if ($this->_user === null) {

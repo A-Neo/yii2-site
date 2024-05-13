@@ -224,12 +224,12 @@ class EmeraldMain extends \yii\db\ActiveRecord
         self::$user->balance -= (double) self::CONTRIBUTION;
         self::$user->updateAttributes(['balance']);
 
-        self::makeBalanceRecord(Balance::TYPE_E_ACTIVE, 1, self::$user->id, 0, (double) self::CONTRIBUTION, 0, 'Активация пользователя');
+        self::makeBalanceRecord(Balance::TYPE_E_ACTIVE, $level, self::$user->id, 0, (double) self::CONTRIBUTION, 0, 'Активация пользователя');
 
         /**
          * Ищем стол 1 уровня у реферала
          */
-        self::$_this = self::findOne(['id_user' => self::$reffer->id, 'level' => 1]);
+        self::$_this = self::findOne(['id_user' => self::$reffer->id, 'level' => $level]);
         if (!empty(self::$_this)) return 'Ошибка: у реферала не найден стол первого уровня [EmeraldMain::ERR001]';
 
 
@@ -258,7 +258,9 @@ class EmeraldMain extends \yii\db\ActiveRecord
 
     public static function checkDelayUsers()
     {
-        //Проверка отложенных юзеров - проверяем всех
+        /**
+         * Проверка отложенных юзеров
+         */
         $delayUsers = EmeraldDelay::find()->all();
 
         foreach($delayUsers as $delUser) {
@@ -307,10 +309,10 @@ class EmeraldMain extends \yii\db\ActiveRecord
 
     }
 
-    public static function findNewRef($idRef, $level)
+    public static function findNewRef($id_ref, $level)
     {
         $i = 0;
-        $refRefTable = self::findOne(['id_user' => $idRef, 'level' => $level]);
+        $refRefTable = self::findOne(['id_user' => $id_ref, 'level' => $level]);
         while($refRefTable == null && $i < 1000) {
             $user = User::findOne(['id' => $idRef]);
             if (!$user) {

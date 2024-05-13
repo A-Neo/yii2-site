@@ -66,7 +66,8 @@ class EmeraldController extends Controller
 
 //        VarDumper::dump(16 % 4);
 //        VarDumper::dump(11 / 4);
-        VarDumper::dump(9 % 4);die;
+        $all = User::find()->orderBy(['id' => SORT_ASC])->all();
+        VarDumper::dump($all, 5);die;
         (int)$a = 11 / 4;
         $b = 4 * (int)$a;
 
